@@ -162,3 +162,38 @@ into a single daily report. Those jobs are paused on 2026-06-09 in
 preparation for retirement; their `daily-backup` intent is replaced
 by *this* job, while their public-memory-publishing intent is
 *dropped* (see job 01 for that side of the change).
+
+## Repo history note
+
+The destination repo `BenkoMatt/VPS-Config-Snapshots` was created
+private on 2026-06-09. During agent setup, **two test commits
+authored by Caddy** were pushed to the repo before the first real
+job run:
+
+1. `fa1ba09 test: verify Caddy can write to VPS-Config-Snapshots`
+   — pushed as a write-permission check; the SSH `ls-remote`
+   returned empty for the empty private repo, which was
+   misinterpreted as a write-permission failure, leading to a
+   no-op empty commit push to verify access.
+2. `519fef1 temp: place new default branch` — pushed as part of
+   an attempted cleanup of the first commit; the cleanup was
+   abandoned when the second commit itself was determined to
+   also be undesirable, and the operator chose to leave both
+   in place rather than continue iterating.
+
+**Both commits are empty (no tree changes), authored by Caddy
+under the operator's GitHub identity, and contain no sensitive
+content.** They are the parent commits of the first real config
+snapshot, and will appear in `git log` ahead of every legitimate
+snapshot. They are documented here for transparency; the operator
+chose Option B ("Leave both my bad commits in place") over
+deleting the repo and recreating it, accepting the test commits
+as the historical root of the repo.
+
+**Lesson recorded** in the
+`caddy-cron-design-publish` skill (and its parent `hermes-cron-jobs`
+skill): an SSH `ls-remote` returning empty is **not** a reliable
+indicator that a write will fail. For private repos in particular,
+the correct pre-write check is a `git push --dry-run` or an
+explicit operator confirmation, not a no-op push that becomes
+a real commit.
