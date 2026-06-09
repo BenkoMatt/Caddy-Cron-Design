@@ -61,7 +61,8 @@ A single markdown file per day pushed to the public repo
 - A 1-line "Agent" attribution
 - A 4-row "Posture Summary" table (listeners, SSH on Tailscale, disk,
   pending updates)
-- A "Security Audit" section (placeholder summary; see *Failure modes*)
+- A "Security Audit" section that honestly states the audit status
+  (see *Failure modes*).
 - A "Notes" section linking to the upstream hardening guide
 
 The job also commits and pushes the file with message
@@ -110,13 +111,13 @@ now. If a platform is wired later, this field can be changed to
   Tailscale is the only consumer of the CGNAT interface and the
   fall-through case would obviously include a Tailscale listener,
   making the error self-evident in the log.
-- **Security Audit section is currently a placeholder** — the
-  upstream `nemo-relay` observability plugin is not yet exercised by
-  this job. The "Security Audit" section in the public report is a
-  one-line placeholder noting "no findings." If/when a real audit
-  tool is integrated, this section is the integration point. The
-  design is honest about this — it does not pretend the placeholder
-  is a real audit.
+- **Security Audit section is currently an honest placeholder** —
+  the job does not run an integrated audit tool. The "Security
+  Audit" section in the public report says *"Not run — no
+  integrated audit tool on this host"* rather than echoing
+  `0/0/0` (which would be a misleading lie). The section is the
+  integration point if/when a real audit tool is configured. The
+  design is honest about this.
 - **No diff against previous day** — the report shows today's state
   only. Comparing two consecutive days' reports is left to the
   reader. A "diff vs. yesterday" section could be added in a future
@@ -126,21 +127,20 @@ now. If a platform is wired later, this field can be changed to
   meaning changes too. Documented in the operator's
   `hermes-cron-jobs` skill.
 
-## Replaces
+## Implementation status
 
-This job supersedes three legacy cron entries that were paused on
-2026-06-09 in preparation for the renewal:
-
-- `VPS Security Check` (job ID `bdcfcd5385b8`) — old script
-  `vps-security-check.sh`, erroring on `/tmp` log permissions.
-- `Caddy Security Check` (job ID `4f26e822b456`) — newer script
-  `caddy-security-check.sh`, working but redundantly
-  running alongside the broken old one.
-- (Indirectly) the public-report-push portion of `Public Memory
-  Daily Sync` and `Caddy Public Sync` — the public posture artifact
-  this job produces was previously bundled into a multi-purpose
-  "public memory" report that conflated posture, projects, and
-  workspace sync into a single daily push.
-
-Those entries are *paused*, not removed. The operator may remove
-them after one full cycle of the new job has been observed.
+- **2026-06-09:** Script built, tested locally, real-world run
+  against the live host completed. First report published to
+  `github.com/BenkoMatt/VPS-Daily-Posture` at commit `df9a03f`,
+  `reports/2026-06-09.md`. End-to-end push verified.
+- **2026-06-09:** First run surfaced a real finding: 1 non-local
+  TCP listener on `*:4369` (Erlang Port Mapper / `epmd`) — bound
+  to all interfaces, not just the Tailscale interface. This
+  contradicts the design's "expected: 0 public-facing listeners"
+  assumption. Investigated separately, not blocking this job.
+- **2026-06-09:** `hermes --version` reported 95 commits behind
+  upstream (was 4 commits behind on 2026-06-08). The version
+  string is unchanged (`v0.16.0`); the commit count behind
+  indicates an upstream refspec shift. Also investigated
+  separately, not blocking this job.
+- **Status:** ✅ ready for production scheduling.

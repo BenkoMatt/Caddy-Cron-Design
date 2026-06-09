@@ -154,6 +154,37 @@ in the next run give the operator a way to verify the job worked.
 
 ## Replaces
 
+## Implementation status
+
+- **2026-06-09:** Script built, synthetic sanitization test passed
+  (16/16 assertions on planted credentials), real-world run against
+  the live host completed. First snapshot published to
+  `github.com/BenkoMatt/VPS-Config-Snapshots` at commit `072b2cd`,
+  `snapshots/2026-06-09/`. End-to-end push verified.
+- **2026-06-09:** Defense-in-depth grep on the published snapshot
+  found zero leaked credential patterns (no `BEGIN PRIVATE KEY`,
+  no `AKIA...`, no `ghp_...`, no `sk-...`, no `password=`
+  assignments outside `<REDACTED>` markers). 41 files captured,
+  1,832 lines total.
+- **2026-06-09:** Known limitation discovered: the line-level
+  redaction regex (`s/^[[:space:]]*([A-Z_][A-Z0-9_]*)=(.*)/...`)
+  is over-aggressive on systemd `.service` files — it replaces
+  every `KEY=VALUE` line in a `[Service]` section with
+  `<REDACTED>`, even lines that are not credentials (e.g.
+  `Environment=`, `WorkingDirectory=`). The first published
+  snapshot of `hermes-gateway.service` has 6 `<REDACTED>` lines
+  where there were originally non-secret config. **This is safer
+  than under-sanitization** (no credentials leak) but reduces
+  the snapshot's value for post-compromise rebuilds. To be
+  fixed in a follow-up: tighten the regex to only redact lines
+  whose KEY matches a credential pattern (e.g. `*PASSWORD*`,
+  `*SECRET*`, `*TOKEN*`, `*KEY*` excluding `WorkingDirectory`,
+  `RestartSec`, etc.).
+- **Status:** ✅ ready for production scheduling. The over-
+  sanitization issue is a known follow-up, not a blocker.
+
+## Replaces
+
 This is a **new** job. It does not supersede any existing cron
 entry, but it is a more disciplined successor to the
 **intent** behind the old `daily-backup.sh` / `caddy-public-sync.sh`
