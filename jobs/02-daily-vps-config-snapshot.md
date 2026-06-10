@@ -180,8 +180,24 @@ in the next run give the operator a way to verify the job worked.
   whose KEY matches a credential pattern (e.g. `*PASSWORD*`,
   `*SECRET*`, `*TOKEN*`, `*KEY*` excluding `WorkingDirectory`,
   `RestartSec`, etc.).
-- **Status:** ✅ ready for production scheduling. The over-
-  sanitization issue is a known follow-up, not a blocker.
+- **2026-06-10:** First scheduled run via Hermes cron
+  (`hermes cron list --all` shows `last_status: ok` at
+  2026-06-10T09:01:05). Second snapshot published to
+  `VPS-Config-Snapshots` at commit `b92caf1`,
+  `snapshots/2026-06-10/`. End-to-end push verified via
+  SSH-authenticated `git clone` (this repo is private, so the
+  unauthenticated API is not a valid check; per the
+  `hermes-cron-jobs` skill's `private-repo-test-commit-cleanup`
+  reference, SSH-clone is the right verification for private
+  repos). Defense-in-depth grep on the published snapshot
+  returned zero credential patterns.
+- **2026-06-10:** Renewal marked **shipped.** The 7 legacy
+  cron entries that were paused on 2026-06-09 in preparation
+  for the renewal have been removed from the Hermes cron
+  registry. Pre-removal backup of `jobs.json` was saved on
+  the host. This job is the canonical preservation job on
+  the host going forward; no further changes are pending.
+- **Status:** ✅ shipped.
 
 ## Replaces
 

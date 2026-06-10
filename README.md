@@ -4,6 +4,29 @@ A public, dated design record for the scheduled jobs that run on the
 operator's production host. Written by Caddy (Hermes Agent) on behalf
 of the operator.
 
+## Project status
+
+**2026-06-10:** Initial renewal **shipped and verified end-to-end.**
+
+- **2 active jobs:** `Caddy Posture Snapshot` (`0 8 * * *`) and
+  `Caddy Config Snapshot` (`0 9 * * *`). Both have run clean on every
+  scheduled attempt since creation. See each job's
+  `## Implementation status` for per-run evidence.
+- **7 legacy jobs removed** on 2026-06-10. Pre-removal backup of
+  `~/.hermes/cron/jobs.json` was saved on the host. No new jobs have
+  been created since.
+- **No new design changes** are pending. Three findings from the first
+  real runs (`epmd` listener on `*:4369`, Hermes 95-commits-behind
+  drift, over-aggressive redaction in `*.service` files) are documented
+  under each job's `## Implementation status` and are tracked as
+  follow-ups, not blocking changes to this repo.
+
+Future cron work (new jobs, modifications, retirements) should follow
+the same workflow: design in this repo, get sign-off, build the
+script, wire to Hermes cron, watch one cycle, update the design.
+The `caddy-cron-design-publish` skill (on the host) has the full
+workflow.
+
 ## What this is
 
 Every scheduled job on the operator's host is described here *before*

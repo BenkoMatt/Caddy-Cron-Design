@@ -143,4 +143,17 @@ now. If a platform is wired later, this field can be changed to
   string is unchanged (`v0.16.0`); the commit count behind
   indicates an upstream refspec shift. Also investigated
   separately, not blocking this job.
-- **Status:** ✅ ready for production scheduling.
+- **2026-06-10:** First scheduled run via Hermes cron
+  (`hermes cron list --all` shows `last_status: ok` at
+  2026-06-10T08:01:11). Second report published to
+  `VPS-Daily-Posture` at commit `d8b7f3b`,
+  `reports/2026-06-10.md`. End-to-end push verified via the
+  unauthenticated GitHub API (this repo is public, so the API
+  is a valid check here).
+- **2026-06-10:** Renewal marked **shipped.** The 7 legacy
+  cron entries that were paused on 2026-06-09 in preparation
+  for the renewal have been removed from the Hermes cron
+  registry. Pre-removal backup of `jobs.json` was saved on
+  the host. This job is the canonical observability job on
+  the host going forward; no further changes are pending.
+- **Status:** ✅ shipped.
